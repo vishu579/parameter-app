@@ -25,13 +25,67 @@
             </a>
         </div>
     </header>
-    <main id="app">
+    <main id="app" class="main-container">
         <div>
-            <h2>Welcome to the Parameter Ingestion App</h2>
-            <p>This is a simple Flask application integrated with Vue.js.</p>
-            <p>Use this app to manage and ingest parameters efficiently.</p>
+            <div class="controls">
+                <div>
+                    <label class="label">Search:</label>
+                    <input type="text" v-model="searchQuery" @input="filterData" placeholder="Search by ID, Name..."
+                        class="input" />
+                </div>
+
+                <div>
+                    <label class="label">Sort by:</label>
+                    <select v-model="selectedSortKey" @change="handleSortChange" class="custom-select">
+                        <option value="">-- Select sort key --</option>
+                        <option v-for="key in sortableKeys" :value="key">${ keyLabels[key] }
+                        </option>
+                    </select>
+                </div>
+            </div>
+            <section class="data-table">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>S.No</th>
+                            <th>ID</th>
+                            <th>Param Name</th>
+                            <th>Param Theme</th>
+                            <th>Param Gen Frequency</th>
+                            <th>Aggregation Period</th>
+                            <th>Param Display Name</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr v-for="(item, index) in filteredData" :key="item.id">
+                            <td>${ index + 1 }</td>
+                            <td>${ item.id }</td>
+                            <td>${ item.param_name }</td>
+                            <td>${ item.param_theme }</td>
+                            <td>${ item.param_gen_frequency }</td>
+                            <td>${ item.aggregation_period }</td>
+                            <td>${ item.param_displayname }</td>
+                            <td>
+                                <button @click="redirectToParam(item.id)" class="action-btn">
+                                    Publish
+                                </button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </section>
+
+            <p v-if="loading" class="status-text">Loading data...</p>
+            <p v-if="error" class="status-text error-text">${ error }</p>
         </div>
     </main>
+
+    <footer class="footer">
+        © 2025 VEDAS, SAC, ISRO, Government of India | All Rights Reserved
+    </footer>
+
+    <script src="{{ url_for('static', filename='js/app.js') }}" defer></script>
 </body>
 
 </html>

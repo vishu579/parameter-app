@@ -40,33 +40,77 @@ def parameters():
     except Exception as e:
         print("Error is", e)
 
-@app.route("/params-source-ids", methods=["GET"])
-def parameters_source_ids():
-    print("Request received")
+# @app.route("/params-source-ids", methods=["GET"])
+# def parameters_source_ids():
+#     print("Request received")
+#     try:
+#         conn = psycopg2.connect(**DATABASE_CONFIG)
+#         print("Connected")
+#         cur = conn.cursor()
+#         sql_query = """
+#             SELECT DISTINCT
+#                 p.id AS param_id,
+#                 p.param_name,
+#                 g.geoentity_source_id,
+#                 p.param_theme
+#             FROM public.parameters p
+#             JOIN public.geoentity_param_time_stat g
+#                 ON p.id = g.param_id;
+#         """
+        
+#         print(sql_query)
+#         cur.execute(sql_query)
+#         print("Query executed")
+#         db_results = cur.fetchall()
+#         cur.close()
+#         conn.close()
+
+#         # Convert query results to list of dicts for JSON response
+#         keys = ["param_id", "param_name", "geoentity_source_id", "param_theme"]
+#         data = [dict(zip(keys, row)) for row in db_results]
+
+#         response = {
+#             "count": len(data),
+#             "data": data
+#         }
+
+#         return jsonify(response)
+
+#     except Exception as e:
+#         print("Error is", e)
+
+
+@app.route("/params-source-ids/<int:key>", methods=["GET"])
+def parameters_source_ids(key):
+    print(f"Request received for key: {key}")
     try:
         conn = psycopg2.connect(**DATABASE_CONFIG)
         print("Connected")
         cur = conn.cursor()
+
         sql_query = """
             SELECT DISTINCT
                 p.id AS param_id,
                 p.param_name,
                 g.geoentity_source_id,
+                gs.name AS geoentity_name,
                 p.param_theme
             FROM public.parameters p
             JOIN public.geoentity_param_time_stat g
-                ON p.id = g.param_id;
+                ON p.id = g.param_id
+            JOIN public.geoentity_source gs
+                ON g.geoentity_source_id = gs.id
+            WHERE p.id = %s
         """
-        
-        print(sql_query)
-        cur.execute(sql_query)
+
+        print(f"Executing query with key={key}")
+        cur.execute(sql_query, (key,))
         print("Query executed")
         db_results = cur.fetchall()
         cur.close()
         conn.close()
 
-        # Convert query results to list of dicts for JSON response
-        keys = ["param_id", "param_name", "geoentity_source_id", "param_theme"]
+        keys = ["param_id", "param_name", "geoentity_source_id","geoentity_name", "param_theme"]
         data = [dict(zip(keys, row)) for row in db_results]
 
         response = {

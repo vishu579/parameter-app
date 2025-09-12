@@ -145,7 +145,18 @@ new Vue({
             });
         },
         goBack() {
-            window.history.back();
+            window.location.href = '/';
+        },
+        goToRegister() {
+            if (this.paramFilteredData.length === 0) {
+                alert("No data available.");
+                return;
+            }
+
+            const paramName = this.paramFilteredData[0].param_name;
+            const encodedName = encodeURIComponent(paramName);
+
+            window.location.href = `/register/${encodedName}`;
         }
     },
     mounted() {

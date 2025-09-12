@@ -1,0 +1,119 @@
+{
+  "about": {
+    "Title": "Geo Entity Stats Generation",
+    "Description": "Geo Entity Stats Generation for Configured Parameters",
+    "Divison": "CGDD, VRG, EPSA, SAC",
+    "Author": "Shweta Mishra",
+    "Reviewed By": "Arpit Agarwal",
+    "Maintained By": "Mihir"
+  },
+  "global_param": {
+    "database": {
+      "host": "192.168.2.149",
+      "username": "postgres",
+      "password": "Vedas@123",
+      "port": 5433,
+      "db": "geoentity_stats",
+      "geoentity_table": "geoentity",
+      "geoentity_stats_table": "geoentity_param_time_stat",
+      "param_table": "parameters",
+      "processing_record_chunk": 10000
+    }
+  },
+  "config": {
+    "mapping_type": "entity_mapping",
+   "mapping_keys_for_stats_gen": [
+      "RainfallWithNormal_19",
+      "RainfallWithNormal_20",
+      "RainfallWithNormal_21"
+    ],
+    "mapping": {
+      "entity_mapping": {
+        "RainfallWithNormal_19": {
+          "source_id": 19,
+          "region_prefix_filter": [
+            "C91S40D17",
+            "C91S28D89",
+            "C91S4D135",
+            "C91S19D350",
+            "C91S35D682",
+            "C91S22D529",
+            "C91S34D636"
+          ],
+          "params": "LULC_Level1"
+        },
+        "RainfallWithNormal_20": {
+          "source_id": 20,
+          "region_prefix_filter": [
+            "C91S40D17",
+            "C91S28D89",
+            "C91S4D135",
+            "C91S19D350",
+            "C91S35D682",
+            "C91S22D529",
+            "C91S34D636"
+          ],
+          "params": "LULC_Level1"
+        },
+        "RainfallWithNormal_21": {
+          "source_id": 21,
+          "region_prefix_filter": [
+            "C91S40D17",
+            "C91S28D89",
+            "C91S4D135",
+            "C91S19D350",
+            "C91S35D682",
+            "C91S22D529",
+            "C91S34D636"
+          ],
+          "params": "LULC_Level1"
+        }
+      }
+    },
+    "max_processes": 8,
+    "processes_for_param_group": 3,
+    "param_template": {
+      "LULC_Level1": [
+        {
+          "param_name": "LULC_Level1",
+          "source_type": "vedas_raster_system",
+          "algo_id": "T0S0M0",
+          "projection": "EPSG:4326",
+          "height": 128,
+          "width": 128,
+          "skip_null": true,
+          "transforms": {
+            "mappings": {
+              "Agriculture": [1, 2, 3, 4, 5, 6, 7],
+              "Built-up": [
+                8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23,
+                24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39,
+                40
+              ],
+              "Forest": [41, 42, 43, 44, 45, 46, 47, 48],
+              "Grasslands / Grazing Lands": [49, 50, 51, 52],
+              "Others": [53, 54, 55, 56, 57, 58, 59, 60, 61],
+              "Wastelands": [
+                62, 63, 64, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77,
+                78
+              ],
+              "Water Bodies": [79, 80, 81, 82, 83, 84, 85, 86, 87, 88, 89, 90]
+            },
+            "unspecified": "Others"
+          },
+          "folder_path": "/data/VEDAS_Projects_Datasets/Wetland_Information_System/Raster/DominentWavelength_Sentinel2_20m_15D_FS",
+          "convert_to_area" : true,
+          "is_categorical": true,
+          "categorical_fn": "self.sameVal",
+          "stats": ["count"],
+          "exclude_values_for_stats": [],
+          "update_flag": true,
+          "gride_size": 0.05,
+          "bbox1": [72.3667, 23.1918, 72.3677, 23.192],
+          "bbox": [68.11, 6.55, 97.41, 35.67],
+          "param_execution_type": "process"
+        }
+      ]
+    }
+  }
+}

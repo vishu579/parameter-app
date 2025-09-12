@@ -1,0 +1,62 @@
+{
+    "about":{
+                "Title":"Geo Entity Stats Generation",
+                "Description":"Geo Entity Stats Generation for Configured Parameters",
+                "Divison":"CGDD, VRG, EPSA, SAC",
+                "Author":"Nitin Mishra",
+                "Reviewed By":"Pankaj Bodani",
+                "Maintained By":"Mihir, Nayan"
+    },
+        "global_param":{
+        "database":{
+            "host":"192.168.2.149",
+            "username":"postgres",
+            "password":"Vedas@123",
+            "port":5433,
+            "db":"geoentity_stats",
+            "geoentity_table":"geoentity",
+            "geoentity_stats_table":"geoentity_param_time_stat",
+            "param_table":"parameters",
+            "processing_record_chunk":50000
+        }
+    },
+    "config":
+    {
+        "mapping_type":"entity_mapping",
+                "mapping_keys_for_stats_gen":["SOIState2023","SOIDistrict2023","SOITehsil2023"],
+                "mapping":{
+                "entity_mapping":{
+                        "SOIState2023":{
+                        "source_id":2,
+                        "region_prefix_filter":["C91"],
+                        "params":"IMD_Temp_Min_Daily"
+                        },
+                        "SOIDistrict2023":{
+                        "source_id":3,
+                        "region_prefix_filter":["C91"],
+                        "params":"IMD_Temp_Min_Daily"
+                        },
+                        "SOITehsil2023":{
+                        "source_id":4,
+                        "region_prefix_filter":["C91"],
+                        "params":"IMD_Temp_Min_Daily"
+                        }
+                }
+                },
+                "max_processes":8,
+                "processes_for_param_group":3,
+                "param_template":
+                {
+                        "IMD_Temp_Min_Daily":[
+                                        {
+                                                "param_name":"IMD_Temp_Min_INSAT_1D_FS",
+                                                "folder_path":"/data/VEDAS_Projects_Datasets/Fasal2/Raster/IMD_Interpolated_Temp/Min",
+                                                "stats":["mean"],
+                                                "exclude_values_for_stats":[],
+                                                "update_flag":true,
+                                                "param_execution_type":"process"
+                                        }
+                                ]
+                }
+    }
+}

@@ -1,0 +1,271 @@
+{    
+    "about":{
+		"Title":"Geo Entity Stats Generation",
+		"Description":"Geo Entity Stats Generation for Configured Parameters",
+		"Divison":"VWAD, GAWG, EPSA, SAC",
+		"Author":"Arpit Agarwal",
+		"Reviewed By":"Pankaj Bodani",
+		"Maintained By":"Arpan"
+    },
+	"global_param":{
+        "database":{
+            "host":"192.168.2.149",
+            "username":"postgres",
+            "password":"Vedas@123",
+            "port":5433,
+            "db":"geoentity_stats",
+            "geoentity_table":"geoentity",
+            "geoentity_stats_table":"geoentity_param_time_stat",
+            "param_table":"parameters",
+            "processing_record_chunk":50000            
+        }        
+    },
+    "config":
+    {
+    	"mapping_type":"entity_mapping",
+		"mapping_keys_for_stats_gen":["WEST_BENGAL_STATE","WEST_BENGAL_DISTRICT","UTTARPRADESH_STATE","UTTARPRADESH_DISTRICT","TELANGANA_STATE","TELANGANA_DISTRICT","PUNJAB_STATE","PUNJAB_DISTRICT","ODISHA_STATE","ODISHA_DISTRICT","MADHYA_PRADESH_STATE","MADHYA_PRADESH_DISTRICT","KARNATAKA_STATE","KARNATAKA_DISTRICT","JHARKHAND_STATE","JHARKHAND_DISTRICT","BIHAR_STATE", "BIHAR_DISTRICT","ANDHRA_STATE","ANDHRA_DISTRICT","ASSAM_STATE","ASSAM_DISTRICT","CHHATISGARH_STATE","CHHATISGARH_DISTRICT","HARYANA_STATE","HARYANA_DISTRICT"],    		
+		"mapping":{
+    		"entity_mapping":{
+
+              "WEST_BENGAL_STATE":{
+                                "source_id":2,
+                                "region_prefix_filter":["C91S19"],
+                                "params":"PLANTING_DATE_RICE_MODIS_16D",
+                                "file_name_filter":"WEST BENGAL"
+                                 },
+
+                               "WEST_BENGAL_DISTRICT":{
+                                "source_id":3,
+                                "region_prefix_filter":["C91S19D"],
+                                "params":"PLANTING_DATE_RICE_MODIS_16D",
+                                "file_name_filter":"WEST BENGAL"
+                                 },
+
+
+
+                                "UTTARPRADESH_STATE":{
+                                "source_id":2,
+                                "region_prefix_filter":["C91S9"],
+                                "params":"PLANTING_DATE_RICE_MODIS_16D",
+                                "file_name_filter":"UTTARPRADESH"
+                                 },
+
+
+                                "UTTARPRADESH_DISTRICT":{
+                                "source_id":3,
+                                "region_prefix_filter":["C91S9D"],
+                                "params":"PLANTING_DATE_RICE_MODIS_16D",
+                                "file_name_filter":"UTTARPRADESH"
+                                 },
+
+
+
+
+
+                                "TELANGANA_STATE":{
+                                "source_id":2,
+                                "region_prefix_filter":["C91S36"],
+                                "params":"PLANTING_DATE_RICE_MODIS_16D",
+                                "file_name_filter":"TELANGANA"
+                                 },
+
+
+                                "TELANGANA_DISTRICT":{
+                                "source_id":3,
+                                "region_prefix_filter":["C91S36D"],
+                                "params":"PLANTING_DATE_RICE_MODIS_16D",
+                                "file_name_filter":"TELANGANA"
+                                },
+
+
+
+
+                                "PUNJAB_STATE":{
+                                "source_id":2,
+                                "region_prefix_filter":["C91S3"],
+                                "params":"PLANTING_DATE_RICE_MODIS_16D",
+                                "file_name_filter":"PUNJAB"
+                                },
+
+
+                                "PUNJAB_DISTRICT":{
+                                "source_id":3,
+                                "region_prefix_filter":["C91S3D"],
+                                "params":"PLANTING_DATE_RICE_MODIS_16D",
+                                "file_name_filter":"PUNJAB"
+                                },
+
+                                "ODISHA_STATE":{
+                                "source_id":2,
+                                "region_prefix_filter":["C91S21"],
+                                "params":"PLANTING_DATE_RICE_MODIS_16D",
+                                "file_name_filter":"ODISHA"
+                                },
+
+
+                                "ODISHA_DISTRICT":{
+                                "source_id":3,
+                                "region_prefix_filter":["C91S21D"],
+                                "params":"PLANTING_DATE_RICE_MODIS_16D",
+                                "file_name_filter":"ODISHA"
+                                },
+
+
+
+                                "MADHYA_PRADESH_STATE":{
+                                "source_id":2,
+                                "region_prefix_filter":["C91S23"],
+                                "params":"PLANTING_DATE_RICE_MODIS_16D",
+                                "file_name_filter":"MADHYA PRADESH"
+                                },
+
+
+
+                                "MADHYA_PRADESH_DISTRICT":{
+                                "source_id":3,
+                                "region_prefix_filter":["C91S23D"],
+                                "params":"PLANTING_DATE_RICE_MODIS_16D",
+                                "file_name_filter":"MADHYA PRADESH"
+                                },
+
+
+
+                                "KARNATAKA_STATE":{
+                                "source_id":2,
+                                "region_prefix_filter":["C91S29"],
+                                "params":"PLANTING_DATE_RICE_MODIS_16D",
+                                "file_name_filter":"KARNATAKA"
+                                },
+
+
+                               "KARNATAKA_DISTRICT":{
+                                "source_id":3,
+                                "region_prefix_filter":["C91S29D"],
+                                "params":"PLANTING_DATE_RICE_MODIS_16D",
+                                "file_name_filter":"KARNATAKA"
+                                },
+
+                                "JHARKHAND_STATE":{
+                                "source_id":2,
+                                "region_prefix_filter":["C91S20"],
+                                "params":"PLANTING_DATE_RICE_MODIS_16D",
+                                "file_name_filter":"JHARKHAND"
+                                },
+
+
+
+                                "JHARKHAND_DISTRICT":{
+                                "source_id":3,
+                                "region_prefix_filter":["C91S20D"],
+                                "params":"PLANTING_DATE_RICE_MODIS_16D",
+                                "file_name_filter":"JHARKHAND"
+                                },
+
+
+
+                		"BIHAR_STATE":{
+              			"source_id":2,
+	              		"region_prefix_filter":["C91S10"],
+        	      		"params":"PLANTING_DATE_RICE_MODIS_16D",
+                                "file_name_filter":"BIHAR"
+                                },
+
+
+                                "BIHAR_DISTRICT":{
+                                "source_id":3,
+                                "region_prefix_filter":["C91S10D"],
+                                "params":"PLANTING_DATE_RICE_MODIS_16D",
+                                "file_name_filter":"BIHAR"
+                                },
+
+                                "ANDHRA_STATE":{
+                                "source_id":2,
+                                "region_prefix_filter":["C91S28"],
+                                "params":"PLANTING_DATE_RICE_MODIS_16D",
+                                "file_name_filter":"ANDHRA PRADESH"
+
+
+                        },
+                        "ANDHRA_DISTRICT":{
+                                "source_id":3,
+                                "region_prefix_filter":["C91S28D"],
+                                "params":"PLANTING_DATE_RICE_MODIS_16D",
+                                "file_name_filter":"ANDHRA PRADESH"
+
+                   },
+
+                       "ASSAM_STATE":{
+                                "source_id":2,
+                                "region_prefix_filter":["C91S18"],
+                                "params":"PLANTING_DATE_RICE_MODIS_16D",
+                                "file_name_filter":"ASSAM"
+
+
+                        },
+                        "ASSAM_DISTRICT":{
+                                "source_id":3,
+                                "region_prefix_filter":["C91S18D"],
+                                "params":"PLANTING_DATE_RICE_MODIS_16D",
+                                "file_name_filter":"ASSAM"
+
+                   },
+
+                       "CHHATISGARH_STATE":{
+                                "source_id":2,
+                                "region_prefix_filter":["C91S22"],
+                                "params":"PLANTING_DATE_RICE_MODIS_16D",
+                                "file_name_filter":"CHHATISGARH"
+
+
+                        },
+                        "CHHATISGARH_DISTRICT":{
+                                "source_id":3,
+                                "region_prefix_filter":["C91S22D"],
+                                "params":"PLANTING_DATE_RICE_MODIS_16D",
+                                "file_name_filter":"CHHATISGARH"
+
+                   },
+                       "HARYANA_STATE":{
+                                "source_id":2,
+                                "region_prefix_filter":["C91S6"],
+                                "params":"PLANTING_DATE_RICE_MODIS_16D",
+                                "file_name_filter":"HARYANA"
+
+
+                        },
+                        "HARYANA_DISTRICT":{
+                                "source_id":3,
+                                "region_prefix_filter":["C91S6D"],
+                                "params":"PLANTING_DATE_RICE_MODIS_16D",
+                                "file_name_filter":"HARYANA"
+
+                   }
+
+
+
+                      
+    		}    		
+		},
+		"max_processes":8,
+		"processes_for_param_group":3,
+		"param_template":
+		{    	
+    			"PLANTING_DATE_RICE_MODIS_16D":[					
+					{
+						"param_name":"PLANTING_DATE_RICE_MODIS_16D",
+						"folder_path":"/data/VEDAS_Projects_Datasets/Fasal2/Raster/Rice/PlantingDate/",
+						"categorical_data": true,
+						"categorical_fn": "self.sameVal",
+						"aux_data_fn" : "self.find_dates_from_filename",
+						"exclude_values_for_stats":[],
+						"update_flag":true,
+						"param_execution_type":"process"
+                                            
+
+					}				
+				]		
+		}	    
+    }
+
+   
+}

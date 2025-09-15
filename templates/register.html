@@ -33,9 +33,9 @@
 
     <main id="app" class="main-div">
         <!-- <h1>Configuring for: {{ param_name }}</h1> -->
-        <form class="form-css" method="POST" action="/register" enctype="multipart/form-data">
+        <form class="form-css" method="POST" action="/register/{{ param_name }}/key={{ key_id }}"
+            enctype="multipart/form-data">
 
-            <!-- Geoentity Source Section -->
             <div class="form-section">
                 <div class="section-heading" style="grid-row: span 7;">New Entry</div>
 
@@ -46,134 +46,59 @@
                 <input id="folder_path" type="text" name="folder_path" required />
 
                 <label for="stats">Stats:</label>
-                <input id="stats" type="text" name="stats" required />
-
-                <label for="exclude_values_for_stats">Exclude values for stats</label>
-                <input id="exclude_values_for_stats" type="text" name="exclude_values_for_stats" required />
+                <div class="checkbox-group">
+                    <label><input type="checkbox" name="stats[]" value="min" /> Min</label>
+                    <label><input type="checkbox" name="stats[]" value="max" /> Max</label>
+                    <label><input type="checkbox" name="stats[]" value="mean" /> Mean</label>
+                    <label><input type="checkbox" name="stats[]" value="count" /> Count</label>
+                </div>
 
                 <label for="update_flag">Update Flag</label>
-                <input id="update_flag" type="text" name="update_flag" required />
-
-                <label for="param_execution_type">Param Execution Type:</label>
-                <input id="param_execution_type" type="text" name="param_execution_type" required />
+                <div class="radio-group">
+                    <label>
+                        <input type="radio" name="update_flag" value="true" required />
+                        True
+                    </label>
+                    <label>
+                        <input type="radio" name="update_flag" value="false" required />
+                        False
+                    </label>
+                </div>
 
                 <label for="replace_days_range">Replace Days Range:</label>
-                <input id="replace_days_range" type="text" name="replace_days_range" required />
-
-            </div>
-
-            <hr class="form-divider" /> <!-- Geoentity Config Section -->
-            <div class="form-section">
-                <div class="section-heading" style="grid-row: span 2;">Entities</div>
-
-                <label for="config_remark_info">Remark Info:</label>
-                <textarea id="config_remark_info" name="config_remark_info"
-                    rows="2">{{ prefill.geoentity_config.remark.info if prefill else 'Mandatory information for GeoEntity insertion.' }}</textarea>
-
-                <label for="config_notes">Notes (one per line):</label>
-                <textarea id="config_notes" name="config_notes"
-                    rows="3">{% if prefill and prefill.geoentity_config.remark.note %}
-            {{ prefill.geoentity_config.remark.note | join('\n') }}
-            {% endif %}Parent_Type ('File' or 'DB'),Parent_GeoEntity_Source_ID' (For Spatial Join) and 'Prefix_Identifier' required to be confirmed from DB Administrator/Author/Internal_Reviewer.
-In case of 'File' ParentName & ParentID should be provided from 'File' and incase of 'DB' ParentName & ParentID will be fetched from DB.</textarea>
-            </div>
-
-            <!-- <hr class="form-divider" /> -->
-            <!-- GeoJSON File Config Section -->
-            <!-- <div class="form-section">
-                <div class="section-heading" style="grid-row: span 1;">GeoJSON File Upload</div>
-                <label for="geojson_file">Upload GeoJSON File:</label>
-                {% if prefill and prefill.geoentity_config.geoJSON_file_config.file_path %}
-                <p>Current file: {{ prefill.geoentity_config.geoJSON_file_config.file_path }}</p>
-                {% endif %}
-                <input id="geojson_file" type="file" name="geojson_file" accept=".geojson" {% if not prefill
-                    %}required{% endif %} />
-                <input type="hidden" id="existing_file_path"
-                    value="{{ prefill.geoentity_config.geoJSON_file_config.file_path if prefill else '' }}">
-            </div>
-
-            <hr class="form-divider" /> -->
-
-            <!-- Wrap this section to hide/show -->
-            <!-- <div class="form-section" id="geojson-file-config-section">
-                <div class="section-heading" style="grid-row: span 5;">GeoJSON File Config</div>
-
-                <label for="parent_type">Parent Type:</label>
-                <select id="parent_type" name="parent_type" required>
-                    <option value="DB" {% if prefill and prefill.geoentity_config.geoJSON_file_config.parent_type=="DB"
-                        %}selected{% endif %}>DB</option>
-                    <option value="File" {% if prefill and
-                        prefill.geoentity_config.geoJSON_file_config.parent_type=="File" %}selected{% endif %}>File
-                    </option>
-                </select>
-                <label for="parent_geoentity_source_id">Parent Geoentity Source ID:</label>
-                <select id="parent_geoentity_source_id" name="parent_geoentity_source_id" required>
-                    <option value="">-- Select an ID --</option>
-                    <option value="-1" {% if prefill and
-                        prefill.geoentity_config.geoJSON_file_config.parent_geoentity_source_id|string=="-1"
-                        %}selected{% endif %}>-1</option>
-                    <option value="0" {% if prefill and
-                        prefill.geoentity_config.geoJSON_file_config.parent_geoentity_source_id|string=="0" %}selected{%
-                        endif %}>0</option>
-                    {% for source in parent_geoentity_sources %}
-                    <option value="{{ source.id }}" {% if prefill and
-                        prefill.geoentity_config.geoJSON_file_config.parent_geoentity_source_id|string==source.id|string
-                        %} selected {% endif %}>
-                        {{ source.id }} - {{ source.name }}
-                    </option>
-                    {% endfor %}
-                </select>
-                <label for="prefix_identifier">Prefix Identifier:</label>
-                <input id="prefix_identifier" type="text" name="prefix_identifier"
-                    value="{{ prefill.geoentity_config.geoJSON_file_config.prefix_identifier if prefill else '' }}" />
-
-                <label for="geojson_aux_attributes">GeoJSON Aux Attributes (comma-separated):</label>
-                <div id="geojson-aux-checkboxes">
-                    {% if geojson_columns %}
-                    {% for col in geojson_columns %}
-                    <label>
-                        <input type="checkbox" name="geojson_aux_attributes" value="{{ col }}" {% if prefill and col in
-                            prefill.geoentity_config.geoJSON_file_config.geoJSON_aux_attributes %}checked{% endif %} />
-                        {{ col }}
-                    </label><br />
-                    {% endfor %}
-                    {% else %}
-                    <p>No GeoJSON columns available.</p>
-                    {% endif %}
+                <div class="replace-days-container">
+                    <input type="number" name="replace_days_range[]" placeholder="Start (e.g., 0)" />
+                    <input type="number" name="replace_days_range[]" placeholder="End (e.g., 3)" />
                 </div>
-            </div> -->
 
-            <!-- <hr class="form-divider" /> -->
+            </div>
 
+            <hr class="form-divider" />
+            <div class="form-section">
+                <div class="section-heading" style="grid-row: span 4;">Entities</div>
 
-            <!-- GeoJSON Info Attribute Section -->
-            <!-- <div class="form-section hidden-section" id="geojson-info-section">
-                <div class="section-heading" style="grid-row: span 2;">GeoJSON Info Attribute</div>
+                <label for="entity_name">Name:</label>
+                <input id="entity_name" type="text" name="entity_name" required />
 
-                <label for="geojson_info_name">Info Name:</label>
-                <select id="geojson_info_name" name="geojson_info_name">
-                    <option value="">-- Select Info Name --</option>
-                    {% for col in geojson_columns %}
-                    <option value="{{ col }}" {% if prefill and
-                        prefill.geoentity_config.geoJSON_file_config.geoJSON_info_attribute.name==col %} selected {%
-                        endif %}>
-                        {{ col }}
-                    </option>
-                    {% endfor %}
-                </select>
+                <label for="entity_source_id">Source ID:</label>
+                <input id="entity_source_id" type="text" name="entity_source_id" required />
 
-                <label for="geojson_feature_id">Feature ID:</label>
-                <select id="geojson_feature_id" name="geojson_feature_id">
-                    <option value="">-- Select Feature ID --</option>
-                    {% for col in geojson_columns %}
-                    <option value="{{ col }}" {% if prefill and
-                        prefill.geoentity_config.geoJSON_file_config.geoJSON_info_attribute.feature_ID==col %} selected
-                        {% endif %}>
-                        {{ col }}
-                    </option>
-                    {% endfor %}
-                </select>
-            </div> -->
+                <label for="region_prefix_filter">Region Prefix Filter:</label>
+                <div id="region-filters-container">
+                    <div v-for="(filter, index) in regionPrefixFilters" :key="index" class="region-filter-input">
+                        <input type="text" v-model="regionPrefixFilters[index]" :required="index === 0"
+                            name="region_prefix_filter[]" />
+                        <button type="button" v-if="regionPrefixFilters.length > 1"
+                            @click.prevent="removeRegionFilter(index)">
+                            Remove
+                        </button>
+                    </div>
+                </div>
+                <button type="button" id="add-region-filter-btn" @click.prevent="addRegionFilter">Add</button>
+
+                <label for="entity_params">Params:</label>
+                <input id="entity_params" type="text" name="entity_params" value="{{ param_name }}" readonly />
+            </div>
             <!-- Submit Button -->
             <div class="form-button-container">
                 <button type="submit" class="button">Save</button>

@@ -1,0 +1,58 @@
+{
+    "about": {
+        "Title": "Geo Entity Stats Generation",
+        "Description": "Geo Entity Stats Generation for Configured Parameters",
+        "Divison": "GAWG, EPSA, SAC",
+        "Author": "Nitin Mishra",
+        "Reviewed By": "Pankaj Bodani",
+        "Maintained By": "Mihir, Harish"
+    },
+    "global_param": {
+        "database": {
+            "host": "192.168.2.149",
+            "username": "postgres",
+            "password": "Vedas@123",
+            "port": 5433,
+            "db": "geoentity_stats",
+            "geoentity_table": "geoentity",
+            "geoentity_stats_table": "geoentity_param_time_stat",
+            "param_table": "parameters",
+            "processing_record_chunk": 50000
+        }
+    },
+    "config": {
+        "mapping_type": "entity_mapping",
+        "mapping_keys_for_stats_gen": [
+            "SOIDistrict2025"
+        ],
+        "mapping": {
+            "entity_mapping": {
+                "SOIDistrict2025": {
+                    "source_id": 19,
+                    "region_prefix_filter": [
+                        "C91"
+                    ],
+                    "params": "CumRF_GSMAP_1W_MS"
+                }
+            }
+        },
+        "max_processes": 8,
+        "processes_for_param_group": 3,
+        "param_template": {
+            "CumRF_GSMAP_1W_MS": [
+                {
+                    "param_name": "CumRF_GSMAP_1W_MS",
+                    "folder_path": "/home/isro/68_data",
+                    "stats": [
+                        "max",
+                        "count"
+                    ],
+                    "exclude_values_for_stats": [],
+                    "update_flag": false,
+                    "param_execution_type": "process",
+                    "replace_days_range": []
+                }
+            ]
+        }
+    }
+}

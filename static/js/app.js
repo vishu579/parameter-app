@@ -18,6 +18,7 @@ new Vue({
         paramSelectedSortKey: '',
         paramSortAsc: true,
         paramSortableKeys: ['param_id', 'param_name', 'geoentity_source_id', 'geoentity_name', 'param_theme'],
+        regionPrefixFilters: [''],
     },
     computed: {
         keyLabels() {
@@ -156,8 +157,21 @@ new Vue({
             const paramName = this.paramFilteredData[0].param_name;
             const encodedName = encodeURIComponent(paramName);
 
-            window.location.href = `/register/${encodedName}`;
-        }
+            if (!this.key_id) {
+                alert("Key ID not set.");
+                return;
+            }
+
+            window.location.href = `/register/${encodedName}/key=${this.key_id}`;
+        },
+        addRegionFilter() {
+            this.regionPrefixFilters.push('');
+        },
+        removeRegionFilter(index) {
+            if (this.regionPrefixFilters.length > 1) {
+                this.regionPrefixFilters.splice(index, 1);
+            }
+        },
     },
     mounted() {
         this.fetchData();

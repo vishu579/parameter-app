@@ -397,3 +397,7 @@ textarea {
     justify-content: space-evenly;
     margin-top: 30px;
 }
+
+.region-filter-input {
+    display: flex;
+}

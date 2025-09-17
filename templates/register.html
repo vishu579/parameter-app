@@ -42,11 +42,56 @@
                 <label for="name">Param Name:</label>
                 <input id="name" type="text" name="name" value="{{ param_name }}" readonly />
 
-                <label for="folder_path">Folder Path</label>
-                <input id="folder_path" type="text" name="folder_path" required />
+                <label for="folder_path">Folder Path:</label>
+                <div class="folder-path-container">
+                    <select style="width: auto;" id="folder_path_main" name="folder_path_main" v-model="folderPathMain"
+                        required>
+                        <option value="" disabled selected>Select main folder</option>
+                        <option value="/home/isro/68_data/">/home/isro/68_data/</option>
+                        <option value="/data/VEDAS_Projects_Datasets/">/data/VEDAS_Projects_Datasets/</option>
+                        <option value="/home/RAW_DATA/RAW_DATA/">/home/RAW_DATA/RAW_DATA/</option>
+                    </select>
+                    <input id="folder_path_sub" type="text" name="folder_path_sub" v-model="folderPathSub"
+                        placeholder="Subdirectory" />
 
-                <label for="stats">Stats:</label>
-                <div class="checkbox-group">
+                    <button style="width: 40%;" type="button" @click="verifyFolderPath"
+                        :disabled="folderPathVerifying">Verify</button>
+
+                    <span style="margin-left: 10px; font-weight: bold; width: -webkit-fill-available;">
+                        ${ folderPathVerifyResult }
+                    </span>
+                </div>
+
+                <label for="categorical_data">Categorical Data:</label>
+                <div class="radio-group">
+                    <label>
+                        <input type="radio" name="categorical_data" value="true" v-model="selectedCategoricalData"
+                            required />
+                        True
+                    </label>
+                    <label>
+                        <input type="radio" name="categorical_data" value="false" v-model="selectedCategoricalData"
+                            required />
+                        False
+                    </label>
+                </div>
+
+                <label for="categorical_fn" v-if="selectedCategoricalData === 'true'">Categorical Fn:</label>
+                <div class="radio-group" v-if="selectedCategoricalData === 'true'">
+                    <label>
+                        <input type="radio" name="categorical_fn" value="sameVal" v-model="selectedCategoricalFn"
+                            required />
+                        SameVal
+                    </label>
+                    <label>
+                        <input type="radio" name="categorical_fn" value="category_max" v-model="selectedCategoricalFn"
+                            required />
+                        Category Max
+                    </label>
+                </div>
+
+                <label for="stats" v-if="selectedCategoricalData !== 'true'">Stats:</label>
+                <div class="checkbox-group" v-if="selectedCategoricalData !== 'true'">
                     <label><input type="checkbox" name="stats[]" value="min" /> Min</label>
                     <label><input type="checkbox" name="stats[]" value="max" /> Max</label>
                     <label><input type="checkbox" name="stats[]" value="mean" /> Mean</label>
@@ -75,29 +120,49 @@
 
             <hr class="form-divider" />
             <div class="form-section">
-                <div class="section-heading" style="grid-row: span 4;">Entities</div>
+                <div class="section-heading">Entities</div>
 
-                <label for="entity_name">Name:</label>
-                <input id="entity_name" type="text" name="entity_name" required />
+                <!-- Each entity block -->
+                <div v-for="(entity, index) in entities" :key="index" class="entity-section">
 
-                <label for="entity_source_id">Source ID:</label>
-                <input id="entity_source_id" type="text" name="entity_source_id" required />
+                    <label :for="'entity_name_' + index">Name:</label>
+                    <input :id="'entity_name_' + index" type="text" v-model="entity.name"
+                        :name="'entities[' + index + '][name]'" required />
 
-                <label for="region_prefix_filter">Region Prefix Filter:</label>
-                <div id="region-filters-container">
-                    <div v-for="(filter, index) in regionPrefixFilters" :key="index" class="region-filter-input">
-                        <input type="text" v-model="regionPrefixFilters[index]" :required="index === 0"
-                            name="region_prefix_filter[]" />
-                        <button type="button" v-if="regionPrefixFilters.length > 1"
-                            @click.prevent="removeRegionFilter(index)">
-                            Remove
-                        </button>
+                    <label :for="'entity_source_id_' + index">Source ID:</label>
+                    <select :id="'entity_source_id_' + index" v-model="entity.source_id"
+                        :name="'entities[' + index + '][source_id]'" required>
+                        <option value="" disabled>Select Source ID</option>
+                        <option v-for="source in sourceOptions" :key="source.id" :value="source.id">
+                            ${ source.id } - ${ source.name }
+                        </option>
+                    </select>
+
+                    <label :for="'region_prefix_filter_' + index">Region Prefix Filter:</label>
+                    <div>
+                        <div v-for="(filter, filterIndex) in entity.regionPrefixFilters" :key="filterIndex"
+                            class="region-filter-input">
+                            <input type="text" v-model="entity.regionPrefixFilters[filterIndex]"
+                                :name="'entities[' + index + '][region_prefix_filter][]'" :required="filterIndex === 0"
+                                placeholder="C91" />
+                            <button type="button" v-if="entity.regionPrefixFilters.length > 1"
+                                @click="removeRegionFilter(index, filterIndex)">Remove</button>
+                        </div>
+                        <button type="button" @click="addRegionFilter(index)">Add</button>
                     </div>
-                </div>
-                <button type="button" id="add-region-filter-btn" @click.prevent="addRegionFilter">Add</button>
 
-                <label for="entity_params">Params:</label>
-                <input id="entity_params" type="text" name="entity_params" value="{{ param_name }}" readonly />
+                    <label :for="'entity_params_' + index">Params:</label>
+                    <input :id="'entity_params_' + index" type="text" :name="'entities[' + index + '][params]'"
+                        v-model="entity.params" readonly />
+
+                    <button type="button" @click="removeEntity(index)" v-if="entities.length > 1"
+                        class="remove-entity-button">Remove Entity</button>
+
+                    <hr />
+                </div>
+
+                <!-- Add Entity Button -->
+                <button type="button" class="add-entity-button" @click="addEntity">Add Entity</button>
             </div>
             <!-- Submit Button -->
             <div class="form-button-container">
@@ -114,6 +179,7 @@
     </footer>
     <script>
         var key_id = {{ key_id }};
+        var param_name = "{{ param_name }}";
     </script>
     <script src="{{ url_for('static', filename='js/app.js') }}" defer></script>
 </body>

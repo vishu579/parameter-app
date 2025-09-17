@@ -18,7 +18,25 @@ new Vue({
         paramSelectedSortKey: '',
         paramSortAsc: true,
         paramSortableKeys: ['param_id', 'param_name', 'geoentity_source_id', 'geoentity_name', 'param_theme'],
-        regionPrefixFilters: [''],
+        selectedCategoricalData: null,
+        selectedCategoricalFn: null,
+        folderPathMain: '',
+        folderPathSub: '',
+        folderPathVerifyResult: '',
+        folderPathVerifying: false,
+        param_name: '',
+        entities: [
+            {
+                name: '',
+                source_id: '',
+                regionPrefixFilters: [''],
+                params: ''
+            }
+        ],
+        sourceOptions: [],
+        configs: [],
+        configLoading: false,
+        configError: null,
     },
     computed: {
         keyLabels() {
@@ -172,10 +190,140 @@ new Vue({
                 this.regionPrefixFilters.splice(index, 1);
             }
         },
+        async verifyFolderPath() {
+            console.log('Verify button clicked');
+            const mainPath = this.folderPathMain;
+            const subPath = this.folderPathSub.trim();
+
+            if (!mainPath) {
+                alert('Please select a main folder path first.');
+                return;
+            }
+
+            const fullPath = subPath ? `${mainPath}${subPath}` : mainPath;
+
+            console.log(`Verifying path: ${fullPath}`);
+
+
+            this.folderPathVerifyResult = 'Verifying...';
+            this.folderPathVerifying = true;
+
+            try {
+                const response = await fetch('/verify-path', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        // Add CSRF token header if you need it here
+                    },
+                    body: JSON.stringify({ path: fullPath })
+                });
+
+                console.log("Fetch response received");
+
+
+                if (!response.ok) {
+                    this.folderPathVerifyResult = 'Failed to verify path (server error).';
+                    this.folderPathVerifying = false;
+                    return;
+                }
+
+                const data = await response.json();
+
+                console.log("Response data:", data);
+
+                if (data.exists) {
+                    this.folderPathVerifyResult = 'Path exists ✅';
+                    // alert('Path verified successfully!');
+                } else {
+                    this.folderPathVerifyResult = 'Path does not exist ❌';
+                    // alert('Path does not exist.');
+                }
+            } catch (error) {
+                this.folderPathVerifyResult = 'Error verifying path.';
+                console.error(error);
+            } finally {
+                this.folderPathVerifying = false;
+            }
+        },
+        addEntity() {
+            this.entities.push({
+                name: '',
+                source_id: '',
+                regionPrefixFilters: [''],
+                params: this.param_name
+            });
+        },
+        removeEntity(index) {
+            if (this.entities.length > 1) {
+                this.entities.splice(index, 1);
+            }
+        },
+        addRegionFilter(entityIndex) {
+            this.entities[entityIndex].regionPrefixFilters.push('');
+        },
+        removeRegionFilter(entityIndex, filterIndex) {
+            if (this.entities[entityIndex].regionPrefixFilters.length > 1) {
+                this.entities[entityIndex].regionPrefixFilters.splice(filterIndex, 1);
+            }
+        },
+        fetchSourceOptions() {
+            fetch('https://vedas.sac.gov.in/geoentity-services/api/geoentity-sources/')
+                .then(response => response.json())
+                .then(data => {
+                    // Sort data by 'id' ascending (or 'name' if you prefer)
+                    const sortedData = data.data.sort((a, b) => {
+                        // Sort by id (numeric)
+                        return a.id - b.id;
+                    });
+
+                    this.sourceOptions = sortedData;
+                })
+                .catch(err => {
+                    console.error('Failed to load source options:', err);
+                });
+        },
+        goToExistingConfigs() {
+            window.location.href = '/existing-configs';
+        },
+        fetchConfigs() {
+            this.configLoading = true;
+            fetch('/api/configs')
+                .then(res => res.json())
+                .then(data => {
+                    if (data.error) {
+                        this.configError = data.error;
+                        this.configs = [];
+                    } else {
+                        this.configs = data.data || [];
+                        this.configError = null;
+                    }
+                })
+                .catch(err => {
+                    this.configError = 'Failed to load configs: ' + err.message;
+                })
+                .finally(() => {
+                    this.configLoading = false;
+                });
+        },
+        getParamIdByFileName(fileName) {
+            const param = this.rawData.find(item => item.param_name === fileName);
+            return param ? param.id : '';
+        },
     },
     mounted() {
         this.fetchData();
-        this.key_id = key_id; // Assign the variable key_id, make sure it is defined in the scope
+        if (typeof key_id !== 'undefined') {
+            this.key_id = key_id;
+        } // Assign the variable key_id, make sure it is defined in the scope
+        if (typeof param_name !== 'undefined' && param_name !== null) {
+            this.param_name = param_name;
+        }
+        // Set params field for initial entity
+        if (this.entities.length > 0) {
+            this.entities[0].params = this.param_name;
+        }
         this.fetchParamData();
+        this.fetchSourceOptions();
+        this.fetchConfigs();
     }
 });

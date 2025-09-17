@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Existing Configs</title>
+
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}" />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+    <script src="{{ url_for('static', filename='js/vue.js') }}"></script>
+</head>
+
+<body>
+    <header class="main-header">
+        <div class="logo-box">
+            <a href="https://vedas.sac.gov.in" target="_blank">
+                <img src="https://vedas.sac.gov.in/vstatic/data_monitoring_system/img/vedas_logo.png" alt="VEDAS" />
+            </a>
+        </div>
+        <h1 class="dashboard-title">Existing Configs</h1>
+        <div class="logo-box">
+            <a href="https://www.isro.gov.in/" target="_blank">
+                <img src="https://vedas.sac.gov.in/vstatic/data_monitoring_system/img/rightside.png" alt="ISRO" />
+            </a>
+        </div>
+    </header>
+    <main id="app" class="main-container">
+        <div>
+            <section class="data-table">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>S.No</th>
+                            <th>Param ID</th>
+                            <th>Param Name</th>
+                            <th>Action</th>
+                            <th>Finish</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr v-for="(config, index) in configs" :key="config.file_name">
+                            <td>${ index + 1 }</td>
+                            <td>${ getParamIdByFileName(config.file_name) }</td>
+                            <td>${ config.file_name }</td>
+                            <td>
+                                <a :href="`/register/${config.file_name}/key=${getParamIdByFileName(config.file_name)}`">
+                                    <button class="action-btn">
+                                        Edit
+                                    </button>
+                            </td>
+                            <td>
+                                <button class="action-btn">
+                                    Run
+                                </button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </section>
+
+            <p v-if="configLoading" class="status-text">Loading data...</p>
+            <p v-if="configError" class="status-text error-text">${ configError }</p>
+        </div>
+    </main>
+
+    <footer class="footer">
+        © 2025 VEDAS, SAC, ISRO, Government of India | All Rights Reserved
+    </footer>
+
+    <script src="{{ url_for('static', filename='js/app.js') }}" defer></script>
+</body>
+
+</html>

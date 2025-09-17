@@ -6,9 +6,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Parameter Ingestion</title>
 
-    <link rel="stylesheet" href="static\css\style.css" />
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}" />
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
-    <script src="static\js\vue.js"></script>
+    <script src="{{ url_for('static', filename='js/vue.js') }}"></script>
 </head>
 
 <body>
@@ -41,6 +41,12 @@
                         <option v-for="key in sortableKeys" :value="key">${ keyLabels[key] }
                         </option>
                     </select>
+                </div>
+
+                <div>
+                    <button @click="goToExistingConfigs" class="action-btn">
+                        Existing Configs
+                    </button>
                 </div>
             </div>
             <section class="data-table">

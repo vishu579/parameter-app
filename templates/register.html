@@ -92,10 +92,10 @@
 
                 <label for="stats" v-if="selectedCategoricalData !== 'true'">Stats:</label>
                 <div class="checkbox-group" v-if="selectedCategoricalData !== 'true'">
-                    <label><input type="checkbox" name="stats[]" value="min" /> Min</label>
-                    <label><input type="checkbox" name="stats[]" value="max" /> Max</label>
-                    <label><input type="checkbox" name="stats[]" value="mean" /> Mean</label>
-                    <label><input type="checkbox" name="stats[]" value="count" /> Count</label>
+                    <label v-for="stat in ['min','max','mean','count']" :key="stat">
+                        <input type="checkbox" name="stats[]" :value="stat" v-model="stats" />
+                        ${ stat.charAt(0).toUpperCase() + stat.slice(1) }
+                    </label>
                 </div>
 
                 <label for="update_flag">Update Flag</label>
@@ -112,8 +112,10 @@
 
                 <label for="replace_days_range">Replace Days Range:</label>
                 <div class="replace-days-container">
-                    <input type="number" name="replace_days_range[]" placeholder="Start (e.g., 0)" />
-                    <input type="number" name="replace_days_range[]" placeholder="End (e.g., 3)" />
+                    <input v-model.number="replaceDaysStart" type="number" name="replace_days_range[]"
+                        placeholder="Start (e.g., 0)" />
+                    <input v-model.number="replaceDaysEnd" type="number" name="replace_days_range[]"
+                        placeholder="End (e.g., 3)" />
                 </div>
 
             </div>
@@ -127,7 +129,7 @@
 
                     <label :for="'entity_name_' + index">Name:</label>
                     <input :id="'entity_name_' + index" type="text" v-model="entity.name"
-                        :name="'entities[' + index + '][name]'" required />
+                        :name="'entities[' + index + '][name]'" :readonly="!entity.isNew" required />
 
                     <label :for="'entity_source_id_' + index">Source ID:</label>
                     <select :id="'entity_source_id_' + index" v-model="entity.source_id"
@@ -180,6 +182,7 @@
     <script>
         var key_id = {{ key_id }};
         var param_name = "{{ param_name }}";
+        var initialConfig = {{ config_data| tojson | safe }};
     </script>
     <script src="{{ url_for('static', filename='js/app.js') }}" defer></script>
 </body>

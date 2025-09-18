@@ -2,10 +2,16 @@ from flask import Flask, render_template, request, redirect, url_for, jsonify
 import os
 import json
 import paramiko
+import subprocess
+import sqlite3
+import threading
+import time
 
 app = Flask(__name__)
 
 CONFIG_DIR = os.path.join(os.getcwd(), 'configs', 'geotifs')
+
+DB_PATH = 'process_status.db'
 
 SSH_IP= '192.168.2.67'
 SSH_USER= 'isro'
@@ -49,6 +55,70 @@ CONFIG_MAP = {
     "processes_for_param_group": 3,
     "param_template": {}
 }
+
+
+def init_db():
+    conn = sqlite3.connect(DB_PATH)
+    c = conn.cursor()
+    c.execute('''
+        CREATE TABLE IF NOT EXISTS process_status (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            param_name TEXT UNIQUE,
+            status TEXT,
+            pid INTEGER,
+            start_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            end_time TIMESTAMP
+        )
+    ''')
+    conn.commit()
+    conn.close()
+
+init_db()
+
+def update_status(param_name, status, pid=None, end_time=None):
+    conn = sqlite3.connect(DB_PATH)
+    c = conn.cursor()
+
+    if status == 'running':
+        c.execute('''
+            INSERT OR REPLACE INTO process_status (param_name, status, pid, start_time, end_time)
+            VALUES (?, ?, ?, CURRENT_TIMESTAMP, NULL)
+        ''', (param_name, status, pid))
+    elif status in ('completed', 'failed'):
+        c.execute('''
+            UPDATE process_status SET status = ?, end_time = CURRENT_TIMESTAMP WHERE param_name = ?
+        ''', (status, param_name))
+    else:
+        # For other status updates
+        c.execute('''
+            UPDATE process_status SET status = ? WHERE param_name = ?
+        ''', (status, param_name))
+
+    conn.commit()
+    conn.close()
+
+def run_process_in_background(file_path, name):
+    def target():
+        try:
+            # Start the process
+            process = subprocess.Popen(['python', 'GeoEntity_Stats_Generation_Recursive_Forecast.py', file_path])
+            update_status(name, 'running', pid=process.pid)
+
+            # Wait for process to complete
+            ret_code = process.wait()
+            if ret_code == 0:
+                update_status(name, 'completed')
+            else:
+                update_status(name, 'failed')
+            # print("Simulating process for", name)
+            # print("Using config file:", file_path)
+        except Exception as e:
+            update_status(name, 'failed')
+
+    thread = threading.Thread(target=target)
+    thread.start()
+
+
 
 @app.route('/')
 def index():
@@ -145,8 +215,10 @@ def register_parameter(param_name, key_id):
                     "params": entity.get('params', '')
                 }
 
-                if entity_name not in entity_mapping:
-                    entity_mapping[entity_name] = entity_config
+                entity_mapping[entity_name] = {
+                    **entity_mapping.get(entity_name, {}),  # keep old values if any
+                    **entity_config                        # overwrite with new values
+                }
 
                 if entity_name not in mapping_keys_for_stats_gen:
                     mapping_keys_for_stats_gen.append(entity_name)
@@ -161,7 +233,8 @@ def register_parameter(param_name, key_id):
             return f"Error during registration: {str(e)}", 500
 
 
-    return render_template('register.html', param_name=param_name, key_id=key_id)
+    return render_template('register.html', param_name=param_name, key_id=key_id, config_data=config_data  # pass as JSON string
+)
 
 
 @app.route('/verify-path', methods=['POST'])
@@ -217,6 +290,45 @@ def api_configs():
 @app.route('/existing-configs', methods=['GET'])
 def existing_configs():
     return render_template('existing_configs.html')
+
+
+@app.route('/api/run_process', methods=['POST'])
+def run_process():
+    data = request.json
+    param_name = data.get('config_file')
+    if not param_name:
+        return jsonify({'error': 'No config_file provided'}), 400
+
+    file_path = os.path.join(CONFIG_DIR, f'{param_name}.json')
+
+    if not os.path.exists(file_path):
+        return jsonify({'error': 'Config file not found'}), 404
+
+    # Check if already running or completed
+    conn = sqlite3.connect(DB_PATH)
+    c = conn.cursor()
+    c.execute('SELECT status FROM process_status WHERE param_name = ?', (param_name,))
+    row = c.fetchone()
+    conn.close()
+
+    if row and row[0] == 'running':
+        return jsonify({'status': 'running', 'message': 'Process already running'}), 400
+
+    # Run process in background
+    run_process_in_background(file_path, param_name)
+
+    return jsonify({'status': 'started', 'message': f'Job has started for {param_name}'}), 200
+
+@app.route('/api/status/<config_file>')
+def get_status(config_file):
+    conn = sqlite3.connect(DB_PATH)
+    c = conn.cursor()
+    c.execute('SELECT status FROM process_status WHERE param_name = ?', (config_file,))
+    row = c.fetchone()
+    conn.close()
+
+    status = row[0] if row else 'not_started'
+    return jsonify({'status': status})
 
 
 if __name__ == '__main__':

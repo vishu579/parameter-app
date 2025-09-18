@@ -44,14 +44,17 @@
                             <td>${ getParamIdByFileName(config.file_name) }</td>
                             <td>${ config.file_name }</td>
                             <td>
-                                <a :href="`/register/${config.file_name}/key=${getParamIdByFileName(config.file_name)}`">
+                                <a
+                                    :href="`/register/${config.file_name}/key=${getParamIdByFileName(config.file_name)}`">
                                     <button class="action-btn">
                                         Edit
                                     </button>
                             </td>
                             <td>
-                                <button class="action-btn">
-                                    Run
+                                <button class="action-btn" :disabled="runningStatus[config.file_name] === 'running'"
+                                    @click="runProcess(config)">
+                                    <span v-if="runningStatus[config.file_name] === 'running'">Running</span>
+                                    <span v-else>Run</span>
                                 </button>
                             </td>
                         </tr>

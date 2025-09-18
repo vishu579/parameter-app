@@ -22,6 +22,9 @@ new Vue({
         selectedCategoricalFn: null,
         folderPathMain: '',
         folderPathSub: '',
+        stats: [],
+        replaceDaysStart: null,
+        replaceDaysEnd: null,
         folderPathVerifyResult: '',
         folderPathVerifying: false,
         param_name: '',
@@ -37,6 +40,9 @@ new Vue({
         configs: [],
         configLoading: false,
         configError: null,
+        runningStatus: {},
+        pollingIntervalId: null,
+        isPolling: false,
     },
     computed: {
         keyLabels() {
@@ -182,14 +188,6 @@ new Vue({
 
             window.location.href = `/register/${encodedName}/key=${this.key_id}`;
         },
-        addRegionFilter() {
-            this.regionPrefixFilters.push('');
-        },
-        removeRegionFilter(index) {
-            if (this.regionPrefixFilters.length > 1) {
-                this.regionPrefixFilters.splice(index, 1);
-            }
-        },
         async verifyFolderPath() {
             console.log('Verify button clicked');
             const mainPath = this.folderPathMain;
@@ -250,7 +248,8 @@ new Vue({
                 name: '',
                 source_id: '',
                 regionPrefixFilters: [''],
-                params: this.param_name
+                params: this.param_name,
+                isNew: true  // Mark this entity as new
             });
         },
         removeEntity(index) {
@@ -309,6 +308,137 @@ new Vue({
             const param = this.rawData.find(item => item.param_name === fileName);
             return param ? param.id : '';
         },
+        loadConfigData(config) {
+            if (!config || !config.config) return;
+
+            const paramTemplate = config.config.param_template || {};
+            const paramKey = this.param_name;
+            if (paramTemplate[paramKey] && paramTemplate[paramKey].length > 0) {
+                const paramConfig = paramTemplate[paramKey][0];
+
+                // Folder path
+                if (paramConfig.folder_path) {
+                    if (paramConfig.folder_path.startsWith("/home/isro/68_data/")) {
+                        this.folderPathMain = "/home/isro/68_data/";
+                        this.folderPathSub = paramConfig.folder_path.replace("/home/isro/68_data/", "");
+                    } else if (paramConfig.folder_path.startsWith("/data/VEDAS_Projects_Datasets/")) {
+                        this.folderPathMain = "/data/VEDAS_Projects_Datasets/";
+                        this.folderPathSub = paramConfig.folder_path.replace("/data/VEDAS_Projects_Datasets/", "");
+                    } else if (paramConfig.folder_path.startsWith("/home/RAW_DATA/RAW_DATA/")) {
+                        this.folderPathMain = "/home/RAW_DATA/RAW_DATA/";
+                        this.folderPathSub = paramConfig.folder_path.replace("/home/RAW_DATA/RAW_DATA/", "");
+                    } else {
+                        this.folderPathMain = '';
+                        this.folderPathSub = paramConfig.folder_path;
+                    }
+                }
+
+                // categorical
+                this.selectedCategoricalData = paramConfig.categorical_data ? "true" : "false";
+                this.selectedCategoricalFn = paramConfig.categorical_fn || null;
+
+                // stats
+                this.stats = paramConfig.stats || [];
+
+                // update flag
+                document.querySelectorAll("input[name='update_flag']").forEach(radio => {
+                    if (radio.value === (paramConfig.update_flag ? "true" : "false")) {
+                        radio.checked = true;
+                    }
+                });
+
+                if (Array.isArray(paramConfig.replace_days_range) && paramConfig.replace_days_range.length === 2) {
+                    this.replaceDaysStart = paramConfig.replace_days_range[0];
+                    this.replaceDaysEnd = paramConfig.replace_days_range[1];
+                } else {
+                    this.replaceDaysStart = null;
+                    this.replaceDaysEnd = null;
+                }
+            }
+
+            // Entities
+            const entityMapping = config.config.mapping.entity_mapping || {};
+            this.entities = Object.keys(entityMapping).map(entityName => {
+                const entity = entityMapping[entityName];
+                return {
+                    name: entityName,
+                    source_id: entity.source_id || '',
+                    regionPrefixFilters: entity.region_prefix_filter || [''],
+                    params: entity.params || this.param_name,
+                    isNew: false  // Mark preloaded entities as NOT new
+                };
+            });
+
+            if (this.entities.length === 0) {
+                this.entities = [
+                    {
+                        name: '',
+                        source_id: '',
+                        regionPrefixFilters: [''],
+                        params: this.param_name,
+                        isNew: true  // New entity to be editable
+                    }
+                ];
+            }
+        },
+        runProcess(config) {
+            if (this.runningStatus[config.file_name] === 'running') return;
+
+            fetch('/api/run_process', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ config_file: config.file_name })
+            })
+                .then(res => res.json())
+                .then(data => {
+                    if (data.status === 'started') {
+                        alert(`Job has started for this id: ${config.file_name}`);
+                        this.$set(this.runningStatus, config.file_name, 'running');
+
+                        // Start polling if not already started
+                        if (!this.isPolling) {
+                            this.startPolling();
+                        }
+                    } else if (data.status === 'running') {
+                        alert(data.message);
+                    } else {
+                        alert('Failed to start job');
+                    }
+                })
+                .catch(() => alert('Error starting job'));
+        },
+        pollStatus() {
+            this.configs.forEach(config => {
+                if (this.runningStatus[config.file_name] === 'running') {
+                    fetch(`/api/status/${encodeURIComponent(config.file_name)}`)
+                        .then(res => res.json())
+                        .then(data => {
+                            const oldStatus = this.runningStatus[config.file_name];
+                            const newStatus = data.status;
+
+                            if (oldStatus !== newStatus) {
+                                if (newStatus === 'completed' || newStatus === 'failed') {
+                                    alert(`Job has been ${newStatus} for this id: ${config.file_name}`);
+                                    this.$set(this.runningStatus, config.file_name, newStatus);
+                                }
+                            }
+                        })
+                }
+            })
+        },
+        startPolling() {
+            this.isPolling = true;
+            this.pollingIntervalId = setInterval(() => {
+                this.pollStatus();
+
+                // Stop polling if no job is running
+                const anyRunning = Object.values(this.runningStatus).some(status => status === 'running');
+                if (!anyRunning) {
+                    clearInterval(this.pollingIntervalId);
+                    this.isPolling = false;
+                }
+            }, 3000);
+        },
     },
     mounted() {
         this.fetchData();
@@ -318,10 +448,16 @@ new Vue({
         if (typeof param_name !== 'undefined' && param_name !== null) {
             this.param_name = param_name;
         }
+
+        if (typeof initialConfig !== 'undefined' && initialConfig) {
+            this.loadConfigData(initialConfig);
+        }
+
         // Set params field for initial entity
         if (this.entities.length > 0) {
             this.entities[0].params = this.param_name;
         }
+
         this.fetchParamData();
         this.fetchSourceOptions();
         this.fetchConfigs();

@@ -153,6 +153,27 @@
                         <button type="button" @click="addRegionFilter(index)">Add</button>
                     </div>
 
+                    <div style="display: flex;">
+                        <label :for="'filter_by_file_name_' + index">Filter By File Name:</label>
+                        <div class="radio-group">
+                            <label style="display: flex; align-items: baseline;">
+                                <input type="radio" :name="'entities[' + index + '][filter_by_file_name]'" :value="true"
+                                    v-model="entity.filter_by_file_name" />
+                                True
+                            </label>
+                            <label style="display: flex; align-items: baseline;">
+                                <input type="radio" :name="'entities[' + index + '][filter_by_file_name]'" :value="false"
+                                    v-model="entity.filter_by_file_name" />
+                                False
+                            </label>
+                        </div>
+                    </div>
+
+                    <label :for="'file_name_filter_' + index" v-if="entity.filter_by_file_name">File Name
+                        Filter:</label>
+                    <input v-if="entity.filter_by_file_name" type="text" :id="'file_name_filter_' + index"
+                        :name="'entities[' + index + '][file_name_filter]'" v-model="entity.file_name_filter" />
+
                     <label :for="'entity_params_' + index">Params:</label>
                     <input :id="'entity_params_' + index" type="text" :name="'entities[' + index + '][params]'"
                         v-model="entity.params" readonly />

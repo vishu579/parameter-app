@@ -33,7 +33,9 @@ new Vue({
                 name: '',
                 source_id: '',
                 regionPrefixFilters: [''],
-                params: ''
+                params: '',
+                filter_by_file_name: 'false',
+                file_name_filter: '',
             }
         ],
         sourceOptions: [],
@@ -249,7 +251,9 @@ new Vue({
                 source_id: '',
                 regionPrefixFilters: [''],
                 params: this.param_name,
-                isNew: true  // Mark this entity as new
+                isNew: true,  // Mark this entity as new
+                filter_by_file_name: false,
+                file_name_filter: ''
             });
         },
         removeEntity(index) {
@@ -365,7 +369,9 @@ new Vue({
                     source_id: entity.source_id || '',
                     regionPrefixFilters: entity.region_prefix_filter || [''],
                     params: entity.params || this.param_name,
-                    isNew: false  // Mark preloaded entities as NOT new
+                    isNew: false,  // Mark preloaded entities as NOT new
+                    filter_by_file_name: entity.filter_by_file_name === true || entity.filter_by_file_name === 'true',
+                    file_name_filter: entity.file_name_filter || '',
                 };
             });
 
@@ -376,7 +382,9 @@ new Vue({
                         source_id: '',
                         regionPrefixFilters: [''],
                         params: this.param_name,
-                        isNew: true  // New entity to be editable
+                        isNew: true,  // New entity to be editable
+                        filter_by_file_name: false,
+                        file_name_filter: '',
                     }
                 ];
             }
@@ -439,6 +447,9 @@ new Vue({
                 }
             }, 3000);
         },
+        goToNewParameter() {
+            window.location.href = '/param-form';
+        }
     },
     mounted() {
         this.fetchData();

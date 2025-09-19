@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>New Parameter</title>
+
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}" />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css" />
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+    <script src="{{ url_for('static', filename='js/vue.js') }}"></script>
+</head>
+
+<body>
+    <div>
+
+    </div>
+    <header class="main-header">
+        <div class="logo-box">
+            <a href="https://vedas.sac.gov.in" target="_blank">
+                <img src="https://vedas.sac.gov.in/vstatic/data_monitoring_system/img/vedas_logo.png" alt="VEDAS" />
+            </a>
+        </div>
+        <h1 class="dashboard-title">New Parameter</h1>
+        <div class="logo-box">
+            <a href="https://www.isro.gov.in/" target="_blank">
+                <img src="https://vedas.sac.gov.in/vstatic/data_monitoring_system/img/rightside.png" alt="ISRO" />
+            </a>
+        </div>
+    </header>
+
+    <main id="app" class="main-div">
+        <form class="param-form-css" method="POST" action="/param-form">
+            <!-- ID omitted: auto-generated -->
+            <div>
+                <label for="id">ID: *</label>
+                <input type="text" id="id" name="id" required />
+            </div>
+            <div>
+                <label for="param_name">Parameter Name: *</label>
+                <input type="text" id="param_name" name="param_name" required />
+            </div>
+
+            <div>
+                <label for="param_theme">Parameter Theme: *</label>
+                <input type="text" id="param_theme" name="param_theme" required />
+            </div>
+
+            <div>
+                <label for="keywords">Keywords:</label>
+                <input type="text" id="keywords" name="keywords" placeholder="Comma separated" />
+            </div>
+
+            <div>
+                <label for="access_constraint">Access Constraint:</label>
+                <input type="text" id="access_constraint" name="access_constraint" />
+            </div>
+
+            <div>
+                <label for="use_constraints">Use Constraints:</label>
+                <input type="text" id="use_constraints" name="use_constraints" />
+            </div>
+
+            <div>
+                <label for="data_creation_purpose">Data Creation Purpose: *</label>
+                <textarea id="data_creation_purpose" name="data_creation_purpose" required></textarea>
+            </div>
+
+            <div>
+                <label for="data_type">Data Type: *</label>
+                <input type="text" id="data_type" name="data_type" required />
+            </div>
+
+            <div>
+                <label for="edition">Edition:</label>
+                <input type="text" id="edition" name="edition" value="1" />
+            </div>
+
+            <div>
+                <label for="status">Status: *</label>
+                <input type="text" id="status" name="status" value="Ongoing" required />
+            </div>
+
+            <div>
+                <label for="contact_person">Contact Person: *</label>
+                <input type="text" id="contact_person" name="contact_person" required />
+            </div>
+
+            <div>
+                <label for="contact_details">Contact Details: *</label>
+                <input type="text" id="contact_details" name="contact_details" required />
+            </div>
+
+            <div>
+                <label for="data_preparation_entities">Data Preparation Entities: *</label>
+                <input type="text" id="data_preparation_entities" name="data_preparation_entities" required />
+            </div>
+
+            <div>
+                <label for="geoextents_ltbr">Geo Extents (LTBR): *</label>
+                <input type="text" id="geoextents_ltbr" name="geoextents_ltbr" placeholder="Lat, Long, Bottom, Right"
+                    required />
+            </div>
+
+            <div>
+                <label for="original_source">Original Source: *</label>
+                <input type="text" id="original_source" name="original_source" required />
+            </div>
+
+            <div>
+                <label for="res_scale">Resolution Scale: *</label>
+                <input type="text" id="res_scale" name="res_scale" required />
+            </div>
+
+            <div>
+                <label for="param_gen_frequency">Parameter Generation Frequency: *</label>
+                <input type="text" id="param_gen_frequency" name="param_gen_frequency" required />
+            </div>
+
+            <div>
+                <label for="aggregation_period">Aggregation Period: *</label>
+                <input type="text" id="aggregation_period" name="aggregation_period" required />
+            </div>
+
+            <div>
+                <label for="param_start_type">Parameter Start Type: *</label>
+                <input type="text" id="param_start_type" name="param_start_type" required />
+            </div>
+
+            <div>
+                <label for="accuracy">Accuracy:</label>
+                <input type="text" id="accuracy" name="accuracy" />
+            </div>
+
+            <div>
+                <label for="param_description">Parameter Description: *</label>
+                <textarea id="param_description" name="param_description" required></textarea>
+            </div>
+
+            <div>
+                <label for="release_stage">Release Stage:</label>
+                <input type="text" id="release_stage" name="release_stage" />
+            </div>
+
+            <div>
+                <label for="auxdata">Auxiliary Data (JSON):</label>
+                <textarea id="auxdata" name="auxdata" placeholder='{"key": "value"}'></textarea>
+            </div>
+
+            <div>
+                <label for="param_displayname">Parameter Display Name: *</label>
+                <input type="text" id="param_displayname" name="param_displayname" required />
+            </div>
+
+            <button type="submit">Submit</button>
+        </form>
+    </main>
+
+    <footer class="footer">
+        © 2025 VEDAS, SAC, ISRO, Government of India | All Rights Reserved
+    </footer>
+    <script src="{{ url_for('static', filename='js/app.js') }}" defer></script>
+</body>
+
+</html>

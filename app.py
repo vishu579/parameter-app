@@ -168,13 +168,18 @@ def register_parameter(param_name, key_id):
                 "param_name": key,
                 "folder_path": folder_path,
                 "categorical_data": request.form.get('categorical_data') == 'true',
-                "categorical_fn": request.form.get('categorical_fn'),
-                "stats": request.form.getlist('stats[]'),
                 "exclude_values_for_stats": [],
                 "update_flag": request.form.get('update_flag') == 'true',
                 "param_execution_type": "process",
                 "replace_days_range": replace_days_range
             }
+
+            if param_config["categorical_data"]:
+                # If categorical_data is true, exclude stats, include categorical_fn
+                param_config["categorical_fn"] = request.form.get('categorical_fn')
+            else:
+                # If categorical_data is false, exclude categorical_fn, include stats
+                param_config["stats"] = request.form.getlist('stats[]')
 
              # Update the param_template in the config
             if 'param_template' not in config_data['config']:
@@ -212,7 +217,9 @@ def register_parameter(param_name, key_id):
                 entity_config = {
                     "source_id": int(entity.get('source_id')),
                     "region_prefix_filter": entity.get('region_prefix_filter', []),
-                    "params": entity.get('params', '')
+                    "params": entity.get('params', ''),
+                    "filter_by_file_name": entity.get('filter_by_file_name', 'false') == 'true',
+                    "file_name_filter": entity.get('file_name_filter', '')
                 }
 
                 entity_mapping[entity_name] = {
@@ -233,8 +240,7 @@ def register_parameter(param_name, key_id):
             return f"Error during registration: {str(e)}", 500
 
 
-    return render_template('register.html', param_name=param_name, key_id=key_id, config_data=config_data  # pass as JSON string
-)
+    return render_template('register.html', param_name=param_name, key_id=key_id, config_data=config_data)
 
 
 @app.route('/verify-path', methods=['POST'])
@@ -329,6 +335,11 @@ def get_status(config_file):
 
     status = row[0] if row else 'not_started'
     return jsonify({'status': status})
+
+
+@app.route('/param-form', methods=['GET', 'POST'])
+def param_form():
+    return render_template('param_form.html')
 
 
 if __name__ == '__main__':
